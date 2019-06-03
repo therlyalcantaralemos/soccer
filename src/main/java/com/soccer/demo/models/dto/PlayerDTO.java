@@ -1,5 +1,7 @@
 package com.soccer.demo.models.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.soccer.demo.models.Player;
 import lombok.Data;
 
@@ -7,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PlayerDTO {
     private Long idPlayer;
     private Long idTeam;
@@ -14,6 +17,7 @@ public class PlayerDTO {
     private LocalDate birthDate;
     private Integer skillLevel;
     private BigDecimal salary;
+    @JsonIgnore
     private Boolean captain;
 
 

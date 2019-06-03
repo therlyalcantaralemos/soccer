@@ -1,4 +1,4 @@
 
-usquid:S001171"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¼Ä÷üÿÿÿÿ8¢©Ü‹­-
-¿%squid:RedundantThrowsDeclarationCheck "†Remove the declaration of thrown exception 'com.soccer.demo.services.exceptions.ObjectNotFoundException' which is a runtime exception.(Å²Ú8µ­¨Š­-
-Lsquid:S22012"/The return value of "orElseThrow" must be used.(¿û™,8”¸á‹­-
+Ä%squid:RedundantThrowsDeclarationCheck$"†Remove the declaration of thrown exception 'com.soccer.demo.services.exceptions.ObjectNotFoundException' which is a runtime exception.(¬Ë«Óøÿÿÿÿ8µ­¨Š­-
+isquid:CommentedOutCodeLine;"<This block of commented-out lines of code should be removed.(§†û8•²°-
+Rsquid:S2201"/The return value of "orElseThrow" must be used.(ÍŞÁêûÿÿÿÿ8ö§×°°-

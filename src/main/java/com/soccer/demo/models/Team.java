@@ -25,11 +25,9 @@ public class Team implements Serializable {
     private String colorFirstUniform;
     @Column(nullable=false)
     private String colorSecondUniform;
-    @CreatedDate
-    private LocalDate dateCreated;
-    @Version
-    @JsonIgnore
-    private Long version;
+    @Column(nullable=false)
+    private LocalDate dateCreatedTeam;
+
 
     public Team() {
     }
@@ -39,13 +37,11 @@ public class Team implements Serializable {
         this.name = teamDto.getName();
         this.colorFirstUniform = teamDto.getColorFirstUniform();
         this.colorSecondUniform = teamDto.getColorSecondUniform();
-    }
-
-    @PrePersist
-    public void prePersist(){
-        this.dateCreated = LocalDate.now();
+        this.dateCreatedTeam = teamDto.getDateCreatedTeam();
 
     }
+
+
 }
 
 

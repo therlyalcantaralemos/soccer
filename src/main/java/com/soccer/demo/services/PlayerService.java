@@ -4,51 +4,124 @@ import com.soccer.demo.models.Player;
 import com.soccer.demo.models.dto.PlayerCaptainDTO;
 import com.soccer.demo.models.dto.PlayerDTO;
 import com.soccer.demo.repositories.PlayerRepository;
+import com.soccer.demo.repositories.TeamRepository;
 import com.soccer.demo.services.exceptions.IdUsedException;
 import com.soccer.demo.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PlayerService {
     private final PlayerRepository playerRepository;
+    private final TeamRepository teamRepository;
 
     @Autowired
-    public PlayerService(PlayerRepository playerRepository) {
+    public PlayerService(PlayerRepository playerRepository, TeamRepository teamRepository) {
         this.playerRepository = playerRepository;
+        this.teamRepository = teamRepository;
     }
 
-    public Player created(PlayerDTO playerDto) {
+    public PlayerDTO created(PlayerDTO playerDto) {
         if (playerRepository.findByIdPlayer(playerDto.getIdPlayer()).isPresent()) {
             throw new IdUsedException();
         }
-        playerRepository.findByIdTeam(playerDto.getIdTeam()).orElseThrow(ObjectNotFoundException::new);
+        teamRepository.findByIdTeam(playerDto.getIdTeam()).orElseThrow(ObjectNotFoundException::new);
 
-        return playerRepository.save(new Player(playerDto));
+        playerRepository.save(new Player(playerDto));
+        return playerDto;
     }
 
-    public Optional<Player> setCaptain(PlayerCaptainDTO playerCaptainDto) throws ObjectNotFoundException {
+    public PlayerDTO setCaptain(PlayerCaptainDTO playerCaptainDto) throws ObjectNotFoundException {
         Optional<Player> player = playerRepository.findByIdTeamAndIdPlayer(playerCaptainDto.getIdTeam(), playerCaptainDto.getIdPlayer());
 
-        player.ifPresentOrElse(findPlayer -> {
-            playerRepository.findByIdTeamAndCaptainIsTrue(playerCaptainDto.getIdTeam()).ifPresent(cap -> {
-                cap.setCaptain(false);
-                playerRepository.save(cap);
+        if(player.isPresent()){
+            playerRepository.findByIdTeamAndCaptainIsTrue(playerCaptainDto.getIdTeam())
+                    .stream().forEach(existsCaptain ->{
+                    existsCaptain.setCaptain(false);
+                     playerRepository.save(existsCaptain);
 
             });
 
-            findPlayer.setCaptain(true);
-            playerRepository.save(findPlayer);
-        }, ObjectNotFoundException::new);
+            player.stream().forEach(captain -> {
+                captain.setCaptain(true);
+                playerRepository.save(captain);
 
-        return player;
+            });
+        }else{
+            throw new ObjectNotFoundException();
+        }
+
+        return new PlayerDTO(player.get());
     }
 
-    public Player findCaptain(Long IdTeam) {
-        playerRepository.findByIdTeam(IdTeam).orElseThrow(ObjectNotFoundException::new);
-        return playerRepository.findByIdTeamAndCaptainIsTrue(IdTeam).orElseThrow(ObjectNotFoundException::new);
+    public PlayerDTO findCaptainByIdTeam(Long IdTeam) {
+        Player player = playerRepository.findByIdTeamAndCaptainIsTrue(IdTeam).orElseThrow(ObjectNotFoundException::new);
+        return new PlayerDTO(player);
+    }
+
+    public PlayerDTO findByIdPlayer(Long idPlayer){
+        Optional<Player> player = playerRepository.findByIdPlayer(idPlayer);
+        if(!player.isPresent()){
+            throw new ObjectNotFoundException();
+        }
+
+        PlayerDTO playerDto = new PlayerDTO();
+        playerDto.setName(player.get().getName());
+
+        return playerDto;
+    }
+
+    public List<PlayerDTO> findPlayersByTeam(Long idTeam){
+        List<Player> players = playerRepository.findByIdTeamOrderByIdPlayerAsc(idTeam);
+
+        if(players.isEmpty()){
+            throw new ObjectNotFoundException();
+        }
+
+        List<PlayerDTO> playerDto = new ArrayList<>();
+        players.stream().forEach(player -> {
+            playerDto.add(new PlayerDTO(player));
+        });
+
+        return playerDto;
+    }
+
+    public PlayerDTO findBestPlayerByTeam(Long idTeam){
+        Player player = playerRepository.findFirstByIdTeamOrderBySkillLevelDesc(idTeam).orElseThrow(ObjectNotFoundException::new);
+        return new PlayerDTO(player);
+    }
+
+    public PlayerDTO findOldPlayerByTeam(Long idTeam){
+        Player player = playerRepository.findFirstByIdTeamOrderByBirthDateAscIdPlayerAsc(idTeam).orElseThrow(ObjectNotFoundException::new);
+        return new PlayerDTO(player);
+    }
+
+    public PlayerDTO findBiggerSalaryPlayerByTeam(Long idTeam){
+        Player player = playerRepository.findFirstByIdTeamOrderBySalaryDescIdPlayerAsc(idTeam).orElseThrow(ObjectNotFoundException::new);
+        return new PlayerDTO(player);
+    }
+
+    public PlayerDTO findSalaryByPlayer(Long idPlayer){
+        Player player = playerRepository.findFirstByIdTeamOrderBySalaryDescIdPlayerAsc(idPlayer).orElseThrow(ObjectNotFoundException::new);
+        return new PlayerDTO(player);
+    }
+
+    public List<PlayerDTO> findTopPlayers(Integer playersNumber) {
+        Page<Player> players = playerRepository.findAllByOrderBySkillLevelDesc(PageRequest.of(0, playersNumber));
+
+        List<PlayerDTO> playerDto = new ArrayList<>();
+        if (!players.isEmpty()) {
+            players.stream().forEach(player ->{
+                playerDto.add(new PlayerDTO(player));
+            });
+        }
+        return playerDto;
     }
 
 }
