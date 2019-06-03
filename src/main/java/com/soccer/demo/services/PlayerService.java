@@ -56,8 +56,8 @@ public class PlayerService {
         }else{
             throw new ObjectNotFoundException();
         }
-
-        return new PlayerDTO(player.get());
+        PlayerDTO playerDto = new PlayerDTO(player.get());
+        return playerDto;
     }
 
     public PlayerDTO findCaptainByIdTeam(Long IdTeam) {
@@ -108,8 +108,10 @@ public class PlayerService {
     }
 
     public PlayerDTO findSalaryByPlayer(Long idPlayer){
-        Player player = playerRepository.findFirstByIdTeamOrderBySalaryDescIdPlayerAsc(idPlayer).orElseThrow(ObjectNotFoundException::new);
-        return new PlayerDTO(player);
+        Player player = playerRepository.findFirstByIdPlayerOrderBySalaryDescIdPlayerAsc(idPlayer).orElseThrow(ObjectNotFoundException::new);
+        PlayerDTO playerDto = new PlayerDTO();
+        playerDto.setSalary(player.getSalary());
+        return playerDto;
     }
 
     public List<PlayerDTO> findTopPlayers(Integer playersNumber) {

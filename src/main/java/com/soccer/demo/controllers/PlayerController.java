@@ -43,25 +43,25 @@ public class PlayerController {
         return playerService.findCaptainByIdTeam(idTeam);
     }
 
-    @GetMapping("/{idTeam}")
+    @GetMapping("/team/{idTeam}")
     @ResponseStatus(value = HttpStatus.OK)
     public List<PlayerDTO> getPlayersByTeam(@PathVariable Long idTeam){
         return playerService.findPlayersByTeam(idTeam);
     }
 
-    @GetMapping("/{idTeam}/bestPlayer")
+    @GetMapping("/team/{idTeam}/bestPlayer")
     @ResponseStatus(value = HttpStatus.OK)
     public PlayerDTO getBestPlayerByTeam(@PathVariable Long idTeam){
         return playerService.findBestPlayerByTeam(idTeam);
     }
 
-    @GetMapping("/{idTeam}/oldPlayer")
+    @GetMapping("/team/{idTeam}/oldPlayer")
     @ResponseStatus(value = HttpStatus.OK)
     public PlayerDTO getOldPlayerByTeam(@PathVariable Long idTeam){
         return playerService.findOldPlayerByTeam(idTeam);
     }
 
-    @GetMapping("/{idTeam}/biggerSalary")
+    @GetMapping("/team/{idTeam}/biggerSalary")
     @ResponseStatus(value = HttpStatus.OK)
     public PlayerDTO getBiggerSalaryPlayerByTeam(@PathVariable Long idTeam){
         return playerService.findBiggerSalaryPlayerByTeam(idTeam);

@@ -25,4 +25,6 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     Page<Player> findAllByOrderBySkillLevelDesc(Pageable pageable);
 
+    Optional<Player> findFirstByIdPlayerOrderBySalaryDescIdPlayerAsc(Long idPlayer);
+
 }

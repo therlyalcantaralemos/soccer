@@ -37,7 +37,7 @@ public class TeamController {
 
     @GetMapping("/{idTeam}")
     @ResponseStatus(value = HttpStatus.OK)
-    public TeamDTO getTeamByName(Long idTeam){
+    public TeamDTO getTeamByName(@PathVariable Long idTeam){
         return teamService.findTeamByName(idTeam);
     }
 
