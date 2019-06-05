@@ -31,14 +31,14 @@ public class TeamController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public TeamDTO insert(@RequestBody TeamDTO teamDto){
-        return teamService.insert(teamDto);
+    public TeamDTO create(@RequestBody TeamDTO teamDto){
+        return teamService.create(teamDto);
     }
 
     @GetMapping("/{idTeam}")
     @ResponseStatus(value = HttpStatus.OK)
-    public TeamDTO getTeamByName(@PathVariable Long idTeam){
-        return teamService.findTeamByName(idTeam);
+    public TeamDTO getNameTeam(@PathVariable Long idTeam){
+        return teamService.getNameTeam(idTeam);
     }
 
     @GetMapping("/teamOutShirt")

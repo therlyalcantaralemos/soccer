@@ -22,7 +22,7 @@ public class TeamService {
         this.teamRepository = teamRepository;
     }
 
-    public TeamDTO insert(TeamDTO teamDto){
+    public TeamDTO create(TeamDTO teamDto){
         if(teamRepository.findByIdTeam(teamDto.getIdTeam()).isPresent()){
            throw new IdUsedException();
         }
@@ -31,7 +31,7 @@ public class TeamService {
         return teamDto;
     }
 
-    public TeamDTO findTeamByName(Long idTeam){
+    public TeamDTO getNameTeam(Long idTeam){
         Optional<Team> team = teamRepository.findByIdTeam(idTeam);
         if(!team.isPresent()){
             throw new ObjectNotFoundException();
