@@ -21,6 +21,7 @@ public class PlayerDTO {
     private Boolean captain;
 
 
+
     public PlayerDTO() {
     }
 
@@ -34,4 +35,6 @@ public class PlayerDTO {
         this.captain = player.getCaptain();
 
     }
+
 }
+

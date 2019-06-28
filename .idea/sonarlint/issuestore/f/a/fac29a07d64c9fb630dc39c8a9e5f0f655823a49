@@ -1,6 +1,6 @@
 
-Osquid:S1602z",Remove useless curly braces around statement(ø¤‚çÿÿÿÿÿ8¼ÓÇ×±-
-usquid:S00117?"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(İñş°ıÿÿÿÿ8§ÉÊ±-
-Osquid:S1602X",Remove useless curly braces around statement(ø¤‚çÿÿÿÿÿ8’µÖË±-
-Rsquid:S2201""/The return value of "orElseThrow" must be used.(ÍŞÁêûÿÿÿÿ8ö§×°°-
-Ä%squid:RedundantThrowsDeclarationCheck("†Remove the declaration of thrown exception 'com.soccer.demo.services.exceptions.ObjectNotFoundException' which is a runtime exception.(¬Ë«Óøÿÿÿÿ8µ­¨Š­-
+Rsquid:S2201 "/The return value of "orElseThrow" must be used.(ÍŞÁêûÿÿÿÿ8ö§×°°-
+Rsquid:S2201"/The return value of "orElseThrow" must be used.(ú®³µøÿÿÿÿ8èĞ§¶-
+Osquid:S1602n",Remove useless curly braces around statement(ûşÈİùÿÿÿÿ8’µÖË±-
+usquid:S001176"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(İñş°ıÿÿÿÿ8§ÉÊ±-
+Osquid:S1602K",Remove useless curly braces around statement(ûşÈİùÿÿÿÿ8¼ÓÇ×±-

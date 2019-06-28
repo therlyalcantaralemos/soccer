@@ -1,8 +1,6 @@
 package com.soccer.demo.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.soccer.demo.models.dto.PlayerDTO;
-import com.soccer.demo.models.dto.TeamDTO;
 import lombok.Data;
 
 import javax.persistence.*;

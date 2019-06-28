@@ -1,6 +1,7 @@
 package com.soccer.demo.services;
 
 import com.soccer.demo.models.Player;
+import com.soccer.demo.models.Team;
 import com.soccer.demo.models.dto.PlayerCaptainDTO;
 import com.soccer.demo.models.dto.PlayerDTO;
 import com.soccer.demo.repositories.PlayerRepository;
@@ -8,13 +9,11 @@ import com.soccer.demo.repositories.TeamRepository;
 import com.soccer.demo.services.exceptions.IdUsedException;
 import com.soccer.demo.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayerService {
@@ -28,83 +27,39 @@ public class PlayerService {
     }
 
     public PlayerDTO created(PlayerDTO playerDto) {
-        if (playerRepository.findByIdPlayer(playerDto.getIdPlayer()).isPresent()) {
-            throw new IdUsedException();
-        }
-        teamRepository.findByIdTeam(playerDto.getIdTeam()).orElseThrow(ObjectNotFoundException::new);
+        Team team = teamRepository.findByIdTeam(playerDto.getIdTeam()).orElseThrow(ObjectNotFoundException::new);
+        playerRepository.findByIdPlayer(playerDto.getIdPlayer()).orElseThrow(IdUsedException::new);
+        Player player = playerRepository.save(new Player(playerDto));
 
-        playerRepository.save(new Player(playerDto));
+        updatePlayerToTeam(team, player);
+
         return playerDto;
     }
 
-    public PlayerDTO setCaptain(PlayerCaptainDTO playerCaptainDto) throws ObjectNotFoundException {
-        Optional<Player> player = playerRepository.findByIdTeamAndIdPlayer(playerCaptainDto.getIdTeam(), playerCaptainDto.getIdPlayer());
+    @Transactional
+    public PlayerDTO setCaptain(PlayerCaptainDTO playerCaptainDto){
+        Player player = playerRepository.findByIdTeamAndIdPlayer(playerCaptainDto.getIdTeam(), playerCaptainDto.getIdPlayer())
+                .orElseThrow(ObjectNotFoundException::new);
 
-        if(player.isPresent()){
-            playerRepository.findByIdTeamAndCaptainIsTrue(playerCaptainDto.getIdTeam())
-                    .stream().forEach(existsCaptain ->{
-                    existsCaptain.setCaptain(false);
-                     playerRepository.save(existsCaptain);
+        playerRepository.findByIdTeamAndCaptainIsTrue(playerCaptainDto.getIdTeam()).ifPresent(captain -> {
+            captain.setCaptain(false);
+            playerRepository.save(captain);
+        });
 
-            });
-
-            player.stream().forEach(captain -> {
-                captain.setCaptain(true);
-                playerRepository.save(captain);
-
-            });
-        }else{
-            throw new ObjectNotFoundException();
-        }
-        PlayerDTO playerDto = new PlayerDTO(player.get());
-        return playerDto;
+        player.setCaptain(true);
+        return new PlayerDTO(playerRepository.save(player));
     }
 
     public PlayerDTO findCaptainByIdTeam(Long IdTeam) {
-        Player player = playerRepository.findByIdTeamAndCaptainIsTrue(IdTeam).orElseThrow(ObjectNotFoundException::new);
-        return new PlayerDTO(player);
+        return new PlayerDTO(playerRepository.findByIdTeamAndCaptainIsTrue(IdTeam).orElseThrow(ObjectNotFoundException::new));
     }
 
     public PlayerDTO findByIdPlayer(Long idPlayer){
-        Optional<Player> player = playerRepository.findByIdPlayer(idPlayer);
-        if(!player.isPresent()){
-            throw new ObjectNotFoundException();
-        }
-
-        PlayerDTO playerDto = new PlayerDTO();
-        playerDto.setName(player.get().getName());
-
-        return playerDto;
-    }
-
-    public List<PlayerDTO> findPlayersByTeam(Long idTeam){
-        List<Player> players = playerRepository.findByIdTeamOrderByIdPlayerAsc(idTeam);
-
-        if(players.isEmpty()){
-            throw new ObjectNotFoundException();
-        }
-
-        List<PlayerDTO> playerDto = new ArrayList<>();
-        players.stream().forEach(player -> {
-            playerDto.add(new PlayerDTO(player));
-        });
-
-        return playerDto;
-    }
-
-    public PlayerDTO findBestPlayerByTeam(Long idTeam){
-        Player player = playerRepository.findFirstByIdTeamOrderBySkillLevelDesc(idTeam).orElseThrow(ObjectNotFoundException::new);
-        return new PlayerDTO(player);
-    }
-
-    public PlayerDTO findOldPlayerByTeam(Long idTeam){
-        Player player = playerRepository.findFirstByIdTeamOrderByBirthDateAscIdPlayerAsc(idTeam).orElseThrow(ObjectNotFoundException::new);
-        return new PlayerDTO(player);
+        return new PlayerDTO(playerRepository.findByIdPlayer(idPlayer).orElseThrow(ObjectNotFoundException::new));
     }
 
     public PlayerDTO findBiggerSalaryPlayerByTeam(Long idTeam){
-        Player player = playerRepository.findFirstByIdTeamOrderBySalaryDescIdPlayerAsc(idTeam).orElseThrow(ObjectNotFoundException::new);
-        return new PlayerDTO(player);
+        return new PlayerDTO(playerRepository.findFirstByIdTeamOrderBySalaryDescIdPlayerAsc(idTeam).orElseThrow(ObjectNotFoundException::new));
     }
 
     public PlayerDTO findSalaryByPlayer(Long idPlayer){
@@ -115,15 +70,16 @@ public class PlayerService {
     }
 
     public List<PlayerDTO> findTopPlayers(Integer playersNumber) {
-        Page<Player> players = playerRepository.findAllByOrderBySkillLevelDesc(PageRequest.of(0, playersNumber));
-
-        List<PlayerDTO> playerDto = new ArrayList<>();
-        if (!players.isEmpty()) {
-            players.stream().forEach(player ->{
-                playerDto.add(new PlayerDTO(player));
-            });
-        }
-        return playerDto;
+        List<Player> players = playerRepository.findAllByOrderBySkillLevelDesc();
+        return getPlayerDTO(players.subList(0, playersNumber));
     }
 
+    public List<PlayerDTO> getPlayerDTO(List<Player> player){
+        return player.stream().map(PlayerDTO::new).collect(Collectors.toList());
+    }
+
+    public void updatePlayerToTeam(Team team, Player player){
+        team.getPlayers().add(player);
+        teamRepository.save(team);
+    }
 }

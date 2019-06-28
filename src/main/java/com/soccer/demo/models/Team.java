@@ -3,13 +3,11 @@ package com.soccer.demo.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.soccer.demo.models.dto.TeamDTO;
 import lombok.Data;
-import org.apache.tomcat.jni.Local;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -27,7 +25,8 @@ public class Team implements Serializable {
     private String colorSecondUniform;
     @Column(nullable=false)
     private LocalDate dateCreatedTeam;
-
+    @JsonIgnore
+    private List<Player> players;
 
     public Team() {
     }

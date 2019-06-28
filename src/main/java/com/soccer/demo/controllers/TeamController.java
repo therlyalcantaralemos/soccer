@@ -1,5 +1,6 @@
 package com.soccer.demo.controllers;
 
+import com.soccer.demo.models.dto.PlayerDTO;
 import com.soccer.demo.models.dto.TeamDTO;
 import com.soccer.demo.services.PlayerService;
 import com.soccer.demo.services.TeamService;
@@ -46,4 +47,24 @@ public class TeamController {
                                                   @RequestParam(value="idTeamOut", defaultValue = "") Long idTeamOut){
         return teamService.findColorShirtTeamOut(idTeam, idTeamOut);
     }
+
+    @GetMapping("/{idTeam}/players")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<PlayerDTO> getPlayers(@PathVariable Long idTeam){
+        return teamService.findPlayers(idTeam);
+    }
+
+    @GetMapping("/{idTeam}/bestPlayer")
+    @ResponseStatus(value = HttpStatus.OK)
+    public PlayerDTO getBestPlayer(@PathVariable Long idTeam){
+        return teamService.findBestPlayer(idTeam);
+    }
+
+//    @GetMapping("/{idTeam}/oldPlayer")
+//    @ResponseStatus(value = HttpStatus.OK)
+//    public PlayerDTO getOldPlayer(@PathVariable Long idTeam){
+//        return teamService.findOldPlayer(idTeam);
+//    }
+
+
 }

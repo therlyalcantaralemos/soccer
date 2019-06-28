@@ -1,52 +1,47 @@
 package com.soccer.demo.services;
 
 import com.soccer.demo.models.Team;
+import com.soccer.demo.models.dto.PlayerDTO;
 import com.soccer.demo.models.dto.TeamDTO;
 import com.soccer.demo.repositories.TeamRepository;
-import com.soccer.demo.services.exceptions.IdUsedException;
 import com.soccer.demo.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TeamService {
 
     private final TeamRepository teamRepository;
+    private final PlayerService playerService;
 
     @Autowired
-    public TeamService(TeamRepository teamRepository) {
+    public TeamService(TeamRepository teamRepository, PlayerService playerService) {
         this.teamRepository = teamRepository;
+        this.playerService = playerService;
     }
 
     public TeamDTO create(TeamDTO teamDto){
         if(teamRepository.findByIdTeam(teamDto.getIdTeam()).isPresent()){
-           throw new IdUsedException();
+            teamRepository.save(new Team(teamDto));
+            return teamDto;
+        }else{
+            throw new ObjectNotFoundException();
         }
-        teamRepository.save(new Team(teamDto));
-
-        return teamDto;
     }
 
     public TeamDTO getNameTeam(Long idTeam){
-        Optional<Team> team = teamRepository.findByIdTeam(idTeam);
-        if(!team.isPresent()){
-            throw new ObjectNotFoundException();
-        }
-
+        Team team = teamRepository.findByIdTeam(idTeam).orElseThrow(ObjectNotFoundException::new);
         TeamDTO teamDto = new TeamDTO();
-        teamDto.setName(team.get().getName());
-
+        teamDto.setName(team.getName());
         return teamDto;
     }
 
     public List<TeamDTO> findTeams(){
-        List<TeamDTO> teamDto = new ArrayList<>();
-        teamRepository.findAllByOrderByIdTeam().forEach(team -> teamDto.add(new TeamDTO(team)));
-        return teamDto;
+        return getTeamDTO(teamRepository.findAllByOrderByIdTeam());
     }
 
     public TeamDTO findColorShirtTeamOut(Long idTeam, Long idTeamOut) {
@@ -60,5 +55,17 @@ public class TeamService {
             teamOutShirt.setColorFirstUniform(teamOut.getColorFirstUniform());
         }
         return teamOutShirt;
+    }
+
+    public List<TeamDTO> getTeamDTO(List<Team> team){
+        return team.stream().map(TeamDTO::new).collect(Collectors.toList());
+    }
+
+    public List<PlayerDTO> findPlayers(Long idTeam){
+        return playerService.getPlayerDTO(teamRepository.findByIdTeam(idTeam).orElseThrow(ObjectNotFoundException::new).getPlayers());
+    }
+
+    public PlayerDTO findBestPlayer(Long idTeam){
+        return findPlayers(idTeam).stream().max(Comparator.comparing(PlayerDTO::getSkillLevel)).orElseThrow(ObjectNotFoundException::new);
     }
 }
